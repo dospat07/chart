@@ -24,7 +24,8 @@ class Chart {
         // context.shadowBlur = 4;
 
         this.context.lineCap = 'round';
-
+        this.backupCanvas = document.createElement("canvas");
+        this.backupContext = this.backupCanvas.getContext('2d');
 
     }
     
@@ -38,6 +39,15 @@ class Chart {
         console.log(this.height, this.width);
     }
 
+    draw(labelsColor,gridColor,labelfont){
+       this.drawGrid(50,50,gridColor);
+       this.drawLabels(labelsColor,labelfont);
+      
+       this.backupCanvas.width = this.canvas.width;
+       this.backupCanvas.height= this.canvas.height;
+      
+       this.backupContext.drawImage(this.canvas,0,0);
+    }
     drawLabels(color, font) {
         this.context.save();
         this.context.font = font;
@@ -75,16 +85,24 @@ class Chart {
         this.context.restore();
     }
     addPoint(point) {
+        if (this.points.length>20){
+            this.points.shift();
+        }
         this.points.push(point);
+        this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+        this.context.drawImage(this.backupCanvas,0,0);
+        this.drawChart();
+        this.tooltip.style.display = "none";
 
     }
     onMouseMove(e) {
         let rect = canvas.getBoundingClientRect();
+       
         let index = Math.floor((e.pageX - rect.x - this.offsetX) / this.factorX + 0.5);
-        if (index>=0){
+        if (index>=0 && e.pageX<( rect.width - this.offsetX)){
              
-            let y = this.height - this.points[index] * this.factorY+rect.x+this.offsetX-1;
-            let x = this.factorX*index+rect.y+this.offsetY-1;
+            let y = this.height - this.points[index] * this.factorY+rect.y+this.offsetX-1;
+            let x = this.factorX*index+rect.x+this.offsetY-1;
             this.tooltip.style.left = x+"px";
             this.tooltip.style.top = y+"px";
             this.tooltip.style.display = "block";
@@ -94,7 +112,7 @@ class Chart {
             // this.context.arc(x,y,1,0,2*Math.PI);
             // this.context.stroke();
             // this.context.restore();
-            console.log(this.points[index],index);
+            //console.log(this.points[index],index);
         }
         else
         {
@@ -103,23 +121,27 @@ class Chart {
     }
     
     drawChart() {
-        this.factorX = this.width / (this.points.length - 1);
-        this.context.save();
-        this.context.translate(this.X, this.Y);
-        this.context.beginPath();
-        let i = 0;
-        for (let x = 0; x <= this.points.length * this.factorX; x += this.factorX) {
-            let y = this.height - this.points[i] * this.factorY
-            console.log(x, y);
-            this.context.lineTo(x, y);
-            i++;
+        if (this.points.length>1){
+           // console.log(this.points.length);
+            this.factorX = this.width / (this.points.length - 1);
+            this.context.save();
+            this.context.translate(this.X, this.Y);
+            this.context.beginPath();
+            let i = 0;
+            for (let x = 0; x <= this.points.length * this.factorX; x += this.factorX) {
+                let y = this.height - this.points[i] * this.factorY;
+               // console.log(x, y);
+                this.context.lineTo(x, y);
+                i++;
+            }
+            this.context.lineTo(this.width, this.height);
+            this.context.lineTo(0, this.height);
+    
+            this.context.stroke();
+            this.context.fill();
+            this.context.restore();
         }
-        this.context.lineTo(this.width, this.height);
-        this.context.lineTo(0, this.height);
-
-        this.context.stroke();
-        this.context.fill();
-        this.context.restore();
+      
     }
 
 }

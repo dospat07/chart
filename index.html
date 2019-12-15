@@ -2,6 +2,7 @@
        
 
 <body>
+    <div style="display: inline;">test</div>
     <canvas id="canvas" width="600px" height="200px"></canvas>
     <script type="text/javascript" src="chart.js"></script>
 </body>
@@ -11,22 +12,10 @@
     document.addEventListener("DOMContentLoaded", (e) => {
         var canvas = document.getElementById('canvas') 
         var chart = new Chart(canvas,'cpu %','seconds');
-        chart.drawGrid(50,50,'rgba(17,125,187,0.7)');
-        chart.drawLabels('rgba(0,0,0,0.5)','10px sans-serif');
-         
-       // chart.addPoint(Math.random()*100);
-       chart.addPoint(14);
-       chart.addPoint(10);
-       chart.addPoint(35);
-       chart.addPoint(42);
-       chart.addPoint(30);
-       chart.addPoint(60);
-       chart.addPoint(60);
-       chart.addPoint(80);
-       chart.addPoint(95);
-       chart.addPoint(100);
-      
-        chart.drawChart()
+        setInterval(function(){ chart.addPoint(Math.random()*100); },100);
+        chart.draw('rgba(0,0,0,0.5)','rgba(17,125,187,0.7)','10px sans-serif');
+       
+       
     });
 
 </script>
