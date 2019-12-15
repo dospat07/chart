@@ -3,7 +3,7 @@
 
 <body>
     <div style="display: inline;">test</div>
-    <canvas id="canvas" width="600px" height="200px"></canvas>
+    <canvas id="canvas" width="600px" height="225px"></canvas>
     <script type="text/javascript" src="chart.js"></script>
 </body>
 
@@ -12,7 +12,7 @@
     document.addEventListener("DOMContentLoaded", (e) => {
         var canvas = document.getElementById('canvas') 
         var chart = new Chart(canvas,'cpu %','seconds');
-        setInterval(function(){ chart.addPoint(Math.random()*100); },100);
+        setInterval(function(){ chart.addPoint(Math.round(Math.random()*10000)/100); },1000);
         chart.draw('rgba(0,0,0,0.5)','rgba(17,125,187,0.7)','10px sans-serif');
        
        
@@ -29,6 +29,14 @@
         left: 0px;
         display: none;
         background-color:#123465 ;
+    }
+    .labelY{
+        position:absolute;
+        top: 0px;
+        left: 0px;
+        display: none;
+        font-size: smaller;
+        color: #123465;
     }
     #canvas {
        border: 1px black solid;  

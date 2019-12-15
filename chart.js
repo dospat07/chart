@@ -2,22 +2,26 @@
 class Chart {
 
     constructor(canvas, labelX, labelY) {
+        this.maxPoints = 40;
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
-        this.context.fillStyle = 'rgba(17,125,187,0.1)';
-        this.context.strokeStyle = 'rgba(17,125,187,1.0';
+       
         this.labelX = labelX;
         this.labelY = labelY;
         this.offsetX = 20;
         this.offsetY = 20;
         this.points = [];
-        this.tooltip = document.createElement("div");
-        this.tooltip.classList.add("circle");
-        this.tooltip.style.height = '5px';
-        this.tooltip.style.width= '5px';
-        document.getElementsByTagName("body")[0].appendChild(this.tooltip);
+        this.point = document.createElement("div");
+        this.point.classList.add("circle");
+        this.point.style.height = '5px';
+        this.point.style.width= '5px';
+        this.elementLabelY = document.createElement("div");
+        this.elementLabelY.classList.add("labelY");
+        this.windowWidht = window.innerWidth;
+        document.getElementsByTagName("body")[0].appendChild(this.point);
+        document.getElementsByTagName("body")[0].appendChild(this.elementLabelY );
         canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
-
+        window.addEventListener('resize', this.onResize.bind(this));
         // context.shadowColor = 'rgba(50,50,50,1.0)';
         // context.shadowOffsetX = 2;
         // context.shadowOffsetY = 2;
@@ -29,18 +33,37 @@ class Chart {
 
     }
     
-       
+    onResize(e){
+        let widthdiv = this.windowWidht-window.innerWidth;
+        this.windowWidht = window.innerWidth;
+        console.log("resize",widthdiv);
+        if ((this.canvas.width-widthdiv)>200){
+           
+            this.canvas.width = this.canvas.width-widthdiv;
+            this.draw(this.labelsColor,this.gridColor,this.labelfont);
+            this.drawChart();
+        }
+    }
     calcDemesnion(stepX, stepY) {
         this.X = 0.5 + this.offsetX;
         this.Y = 0.5 + this.offsetY;
-        this.width = Math.floor((this.context.canvas.width - this.offsetX) / stepX) * stepX;
+        this.width = Math.floor((this.context.canvas.width - 2*this.offsetX) / stepX) * stepX;
         this.height = Math.floor((this.context.canvas.height - this.offsetY) / stepY) * stepY;
         this.factorY = this.height / 100;
         console.log(this.height, this.width);
     }
-
+    
+ 
     draw(labelsColor,gridColor,labelfont){
-       this.drawGrid(50,50,gridColor);
+        this.context.fillStyle = 'rgba(17,125,187,0.1)';
+        this.context.strokeStyle = 'rgba(17,125,187,1.0';
+        this.labelsColor = labelsColor;
+        this.gridColor = gridColor;
+        this.labelfont = labelfont;
+
+       let stepY = Math.ceil((this.context.canvas.height -2* this.offsetY)/10);
+        
+       this.drawGrid(50,stepY,gridColor);
        this.drawLabels(labelsColor,labelfont);
       
        this.backupCanvas.width = this.canvas.width;
@@ -85,27 +108,33 @@ class Chart {
         this.context.restore();
     }
     addPoint(point) {
-        if (this.points.length>20){
+        if (this.points.length>this.maxPoints){
             this.points.shift();
         }
         this.points.push(point);
         this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
         this.context.drawImage(this.backupCanvas,0,0);
         this.drawChart();
-        this.tooltip.style.display = "none";
+        this.point.style.display = "none";
 
     }
     onMouseMove(e) {
         let rect = canvas.getBoundingClientRect();
        
         let index = Math.floor((e.pageX - rect.x - this.offsetX) / this.factorX + 0.5);
-        if (index>=0 && e.pageX<( rect.width - this.offsetX)){
+        if (index>=0 && e.pageX<( rect.right - this.offsetX)){
              
             let y = this.height - this.points[index] * this.factorY+rect.y+this.offsetX-1;
             let x = this.factorX*index+rect.x+this.offsetY-1;
-            this.tooltip.style.left = x+"px";
-            this.tooltip.style.top = y+"px";
-            this.tooltip.style.display = "block";
+            this.point.style.left = x+"px";
+            this.point.style.top = y+"px";
+            this.point.style.display = "block";
+
+            this.elementLabelY.style.left = rect.x+this.width+this.offsetX+5+"px";
+            this.elementLabelY.style.top = y+"px";
+            this.elementLabelY.innerText = this.points[index];
+            this.elementLabelY.style.display = "block";
+          
             // this.context.save();
             // this.context.translate(this.X, this.Y);
             // this.context.beginPath();
@@ -116,7 +145,7 @@ class Chart {
         }
         else
         {
-            this.tooltip.style.display = "none";
+            this.point.style.display = "none";
         }
     }
     
