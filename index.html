@@ -11,9 +11,9 @@
 
     document.addEventListener("DOMContentLoaded", (e) => {
         var canvas = document.getElementById('canvas') 
-        var chart = new Chart(canvas,'cpu %','seconds');
-        setInterval(function(){ chart.addPoint(Math.round(Math.random()*10000)/100); },1000);
-        chart.draw('rgba(0,0,0,0.5)','rgba(17,125,187,0.7)','10px sans-serif');
+        var chart = new Chart(canvas);
+        setInterval(function(){ chart.addPoint({X:Math.round(Math.random()*10000)/100,Y:Date.now()}); },3000);
+        chart.draw('rgba(0,0,0,0.5)','rgba(17,125,187,0.7)');
        
        
     });
@@ -34,8 +34,12 @@
         position:absolute;
         top: 0px;
         left: 0px;
+        font: 10px sans-serif;
+        border:1px solid;
+        border-radius: 2px;
         display: none;
-        font-size: smaller;
+       padding: 2px;
+       background: white;
         color: #123465;
     }
     #canvas {

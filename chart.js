@@ -1,13 +1,12 @@
 
 class Chart {
 
-    constructor(canvas, labelX, labelY) {
+    constructor(canvas) {
         this.maxPoints = 40;
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
        
-        this.labelX = labelX;
-        this.labelY = labelY;
+       
         this.offsetX = 20;
         this.offsetY = 20;
         this.points = [];
@@ -40,7 +39,7 @@ class Chart {
         if ((this.canvas.width-widthdiv)>200){
            
             this.canvas.width = this.canvas.width-widthdiv;
-            this.draw(this.labelsColor,this.gridColor,this.labelfont);
+            this.draw(this.labelsColor,this.gridColor);
             this.drawChart();
         }
     }
@@ -54,38 +53,38 @@ class Chart {
     }
     
  
-    draw(labelsColor,gridColor,labelfont){
+    draw(labelsColor,gridColor){
         this.context.fillStyle = 'rgba(17,125,187,0.1)';
         this.context.strokeStyle = 'rgba(17,125,187,1.0';
         this.labelsColor = labelsColor;
         this.gridColor = gridColor;
-        this.labelfont = labelfont;
+      
 
        let stepY = Math.ceil((this.context.canvas.height -2* this.offsetY)/10);
         
        this.drawGrid(50,stepY,gridColor);
-       this.drawLabels(labelsColor,labelfont);
+      // this.drawLabels(labelsColor);
       
        this.backupCanvas.width = this.canvas.width;
        this.backupCanvas.height= this.canvas.height;
       
        this.backupContext.drawImage(this.canvas,0,0);
     }
-    drawLabels(color, font) {
-        this.context.save();
-        this.context.font = font;
-        let metrics = this.context.measureText(this.labelX);
-        let fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
-        let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    // drawLabels(color) {
+    //     this.context.save();
+    //     this.context.font = font;
+    //     let metrics = this.context.measureText(this.labelX);
+    //     let fontHeight = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+    //     let actualHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
-        this.context.strokeStyle = color;
+    //     this.context.strokeStyle = color;
 
-        this.context.translate(actualHeight, 100 + 15 + 30);
-        this.context.rotate(- Math.PI / 2)
-        this.context.textAlign = "center";
-        this.context.strokeText(this.labelX, 0, 0);
-        this.context.restore();
-    }
+    //     this.context.translate(actualHeight, 100 + 15 + 30);
+    //     this.context.rotate(- Math.PI / 2)
+    //     this.context.textAlign = "center";
+    //     this.context.strokeText(this.labelX, 0, 0);
+    //     this.context.restore();
+    // }
     drawGrid(stepX, stepY, color) {
         this.calcDemesnion(stepX, stepY);
         this.context.save();
@@ -116,23 +115,25 @@ class Chart {
         this.context.drawImage(this.backupCanvas,0,0);
         this.drawChart();
         this.point.style.display = "none";
+        this.elementLabelY.style.display = "none";
 
     }
     onMouseMove(e) {
         let rect = canvas.getBoundingClientRect();
        
         let index = Math.floor((e.pageX - rect.x - this.offsetX) / this.factorX + 0.5);
-        if (index>=0 && e.pageX<( rect.right - this.offsetX)){
+        if (index>=0 && index<this.points.length){
              
-            let y = this.height - this.points[index] * this.factorY+rect.y+this.offsetX-1;
+            let y = this.height - this.points[index].X * this.factorY+rect.y+this.offsetX-1;
             let x = this.factorX*index+rect.x+this.offsetY-1;
             this.point.style.left = x+"px";
             this.point.style.top = y+"px";
             this.point.style.display = "block";
 
-            this.elementLabelY.style.left = rect.x+this.width+this.offsetX+5+"px";
-            this.elementLabelY.style.top = y+"px";
-            this.elementLabelY.innerText = this.points[index];
+           // this.elementLabelY.style.left = rect.x+this.width+this.offsetX+5+"px";
+            this.elementLabelY.style.left = x+5+"px";
+            this.elementLabelY.style.top = y+5+"px";
+            this.elementLabelY.innerText = this.points[index].X+" %";
             this.elementLabelY.style.display = "block";
           
             // this.context.save();
@@ -146,6 +147,7 @@ class Chart {
         else
         {
             this.point.style.display = "none";
+            this.elementLabelY.style.display = "none";
         }
     }
     
@@ -156,12 +158,12 @@ class Chart {
             this.context.save();
             this.context.translate(this.X, this.Y);
             this.context.beginPath();
-            let i = 0;
-            for (let x = 0; x <= this.points.length * this.factorX; x += this.factorX) {
-                let y = this.height - this.points[i] * this.factorY;
-               // console.log(x, y);
+            
+            for (let x = 0,i=0; x <=(this.points.length-1)* this.factorX; x += this.factorX,i++) {
+             
+                let y = this.height - this.points[i].X * this.factorY;               
                 this.context.lineTo(x, y);
-                i++;
+               
             }
             this.context.lineTo(this.width, this.height);
             this.context.lineTo(0, this.height);
